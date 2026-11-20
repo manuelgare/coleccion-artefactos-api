@@ -1,0 +1,21 @@
+# Maven
+target/
+
+# IDEs
+nbproject/private/
+nb-configuration.xml
+nbactions.xml
+.idea/
+*.iml
+.vscode/
+
+# Credenciales y configuración local (nunca subir)
+.env
+*.env
+.claude/
+.github/
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log

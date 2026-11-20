@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Artefactos</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- jQuery CDN -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="container mx-auto p-6">
+        <h1 class="text-4xl font-extrabold text-center text-indigo-700 mb-10">
+            Gestión de Colecciones de Artefactos
+        </h1>
+
+        <!-- Formulario de Adición / Edición de Artefactos -->
+        <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Añadir / Editar Artefacto</h2>
+            <form id="addArtefactoForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Campo oculto: si tiene valor, estamos EDITANDO; si está vacío, AÑADIENDO -->
+                <input type="hidden" id="idArtefacto" name="idArtefacto">
+                <div>
+                    <label for="nombre" class="block text-sm font-medium text-gray-700">Nombre</label>
+                    <input type="text" id="nombre" name="nombre" required
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="descripcion" class="block text-sm font-medium text-gray-700">Descripción</label>
+                    <textarea id="descripcion" name="descripcion" rows="2"
+                              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"></textarea>
+                </div>
+                <div>
+                    <label for="anioCreacion" class="block text-sm font-medium text-gray-700">Año de Creación</label>
+                    <input type="number" id="anioCreacion" name="anioCreacion"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div>
+                    <label for="procedencia" class="block text-sm font-medium text-gray-700">Procedencia</label>
+                    <input type="text" id="procedencia" name="procedencia"
+                           class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <div class="md:col-span-2 text-right">
+                    <!-- Botón AÑADIR (visible por defecto) -->
+                    <button type="submit" id="addArtefacto"
+                            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Añadir Artefacto
+                    </button>
+                    <!-- Botón ACTUALIZAR (oculto hasta que pulsas editar) -->
+                    <button type="submit" id="editArtefacto"
+                            class="hidden inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+                        Actualizar Artefacto
+                    </button>
+                    <!-- Botón CANCELAR edición -->
+                    <button type="button" id="cancelarEdicion"
+                            class="hidden inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancelar
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Tabla de Artefactos -->
+        <div class="bg-white p-6 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold text-gray-800 mb-4">Lista de Artefactos</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nombre</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descripción</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Año</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Procedencia</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="artefactosTableBody" class="bg-white divide-y divide-gray-200">
+                        <!-- Los artefactos se cargarán aquí con jQuery -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            function loadArtefactos() {
+                $.ajax({
+                    url: 'artefactos',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        $('#artefactosTableBody').empty();
+                        $.each(data, function(index, artefacto) {
+                            $('#artefactosTableBody').append(
+                                `<tr class="hover:bg-gray-100">
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${artefacto.id}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${artefacto.nombre}</td>
+                                    <td class="px-6 py-4 text-sm text-gray-500">${artefacto.descripcion}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${artefacto.anioCreacion}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${artefacto.procedencia}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                        <button class="text-indigo-600 hover:text-indigo-900 mr-2 edit-btn" data-id="${artefacto.id}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${artefacto.id}">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </td>
+                                </tr>`
+                            );
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error al cargar artefactos:", status, error);
+                        alert("Error al cargar artefactos. Revisa la consola para más detalles.");
+                    }
+                });
+            }
+
+            loadArtefactos();
+
+            // Devuelve el formulario al modo "Añadir"
+            function resetFormulario() {
+                $('#addArtefactoForm')[0].reset();
+                $('#idArtefacto').val('');
+                $('#addArtefacto').removeClass('hidden');
+                $('#editArtefacto').addClass('hidden');
+                $('#cancelarEdicion').addClass('hidden');
+            }
+
+            // Envío del formulario: AÑADIR (POST) o EDITAR (PUT) según el id oculto
+            $('#addArtefactoForm').submit(function(event) {
+                event.preventDefault();
+
+                const id = $('#idArtefacto').val();
+                const editando = id !== '';
+
+                const artefactoData = {
+                    nombre: $('#nombre').val(),
+                    descripcion: $('#descripcion').val(),
+                    anioCreacion: parseInt($('#anioCreacion').val()),
+                    procedencia: $('#procedencia').val()
+                };
+                // Si estamos editando, incluimos el id para que el servlet sepa cuál actualizar
+                if (editando) {
+                    artefactoData.id = parseInt(id);
+                }
+
+                $.ajax({
+                    url: 'artefactos',
+                    type: editando ? 'PUT' : 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(artefactoData),
+                    success: function(response) {
+                        alert(response.message);
+                        resetFormulario();
+                        loadArtefactos();
+                    },
+                    error: function(xhr, status, error) {
+                        const errorMsg = xhr.responseJSON ? xhr.responseJSON.error : "Error desconocido";
+                        alert("Error al guardar artefacto: " + errorMsg);
+                    }
+                });
+            });
+
+            // Botón EDITAR de una fila: carga los datos del artefacto en el formulario
+            $('#artefactosTableBody').on('click', '.edit-btn', function() {
+                const id = $(this).data('id');
+                $.ajax({
+                    url: 'artefactos',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        const art = data.find(item => item.id === id);
+                        if (!art) return;
+                        $('#idArtefacto').val(art.id);
+                        $('#nombre').val(art.nombre);
+                        $('#descripcion').val(art.descripcion);
+                        $('#anioCreacion').val(art.anioCreacion);
+                        $('#procedencia').val(art.procedencia);
+                        // Cambiamos al modo edición: ocultar "Añadir", mostrar "Actualizar" y "Cancelar"
+                        $('#addArtefacto').addClass('hidden');
+                        $('#editArtefacto').removeClass('hidden');
+                        $('#cancelarEdicion').removeClass('hidden');
+                        window.scrollTo(0, 0);
+                    }
+                });
+            });
+
+            // Botón CANCELAR: salir del modo edición
+            $('#cancelarEdicion').click(function() {
+                resetFormulario();
+            });
+
+            // Botón ELIMINAR de una fila
+            $('#artefactosTableBody').on('click', '.delete-btn', function() {
+                const id = $(this).data('id');
+                if (confirm('¿Estás seguro de que quieres eliminar el artefacto con ID ' + id + '?')) {
+                    $.ajax({
+                        url: 'artefactos?id=' + id,
+                        type: 'DELETE',
+                        success: function(response) {
+                            alert(response.message);
+                            loadArtefactos();
+                        },
+                        error: function(xhr, status, error) {
+                            alert("Error al eliminar el artefacto.");
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
