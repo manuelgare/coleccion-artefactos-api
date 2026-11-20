@@ -2,7 +2,7 @@
 
 Aplicación web para **gestionar el catálogo de una colección de objetos** (por ejemplo, los fondos de un pequeño museo o de un coleccionista). Se pueden dar de alta, listar, editar y eliminar artefactos desde una página web que se comunica con una **API REST en Java** que guarda los datos en **MariaDB** mediante **JPA/Hibernate**.
 
-> Práctica guiada de clase (2.º DAM, IES Vega de Mijas).
+> Práctica guiada de la asignatura de Programación (1.º DAM).
 
 ## Funcionalidades
 
