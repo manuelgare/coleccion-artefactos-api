@@ -10,7 +10,7 @@ Aplicación web para **gestionar el catálogo de una colección de objetos** (po
 |---|---|---|
 | Listar artefactos | `GET /artefactos` | `200` con un array JSON |
 | Crear artefacto | `POST /artefactos` (JSON en el cuerpo) | `201` con el artefacto creado y su id |
-| Editar artefacto | `PUT /artefactos` (JSON con `id`) | `200` |
+| Editar artefacto | `PUT /artefactos` (JSON con `id`) | `200`, o `404` si no existe |
 | Eliminar artefacto | `DELETE /artefactos?id=5` | `200`, o `404` si no existe |
 
 - Errores devueltos como JSON con su código HTTP (`400` si la petición es incorrecta, por ejemplo un `DELETE` sin id; `500` si falla la base de datos).
@@ -71,5 +71,4 @@ Requisitos: JDK 17 o superior, Maven, MariaDB y **Tomcat 10** (o GlassFish 6+; T
 - Pendiente de probar: el despliegue completo en Tomcat 10 con la interfaz web.
 - Mejoras previstas:
   - Validar los datos en el servidor (ahora solo se valida en el formulario).
-  - Devolver `404` al editar un id que no existe.
   - Añadir pruebas automáticas con JUnit.

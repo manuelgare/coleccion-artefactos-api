@@ -56,6 +56,8 @@ public class ArtefactoDAO {
                 em.remove(artefacto);
                 tx.commit();
                 success = true;
+            } else {
+                tx.rollback(); // no existe: cerramos la transacción para no dejar la conexión abierta
             }
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
@@ -72,9 +74,14 @@ public class ArtefactoDAO {
         boolean success = false;
         try {
             tx.begin();
-            em.merge(artefacto);
-            tx.commit();
-            success = true;
+            // merge() insertaría una fila nueva si el id no existe, así que primero comprobamos que existe
+            if (em.find(Artefacto.class, artefacto.getId()) != null) {
+                em.merge(artefacto);
+                tx.commit();
+                success = true;
+            } else {
+                tx.rollback();
+            }
         } catch (Exception e) {
             if (tx.isActive()) tx.rollback();
             throw e;
